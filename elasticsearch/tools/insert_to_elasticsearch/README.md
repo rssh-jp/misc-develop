@@ -3,7 +3,7 @@
 ```
 wget https://dumps.wikimedia.org/jawiki/latest/jawiki-latest-pages-articles.xml.bz2
 git@github.com:zaemyung/wikiextractor.git
-python wikiextractor/WikiExtractor.py -o output -b 80M jawiki-latest-pages-articles.xml.bz2 --json
+python3 wikiextractor/WikiExtractor.py -o output -b 80M jawiki-latest-pages-articles.xml.bz2 --json
 ls ./output/AA/* -d | xargs -L 1 -P 10 bash -c './reformat_to_ndjson.py $0'
 ```
 
