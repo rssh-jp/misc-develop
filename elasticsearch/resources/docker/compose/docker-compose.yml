@@ -32,6 +32,22 @@ services:
     networks:
       - elastic
 
+  eval-manage:
+    build:
+      context: ../../../tools/eval_manage/
+      dockerfile: resources/docker/files/develop/Dockerfile
+    container_name: eval-manage
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 3000:3000
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
+    volumes:
+      - ../../../tools/eval_manage/:/app/
+
 networks:
   elastic:
     driver: bridge
