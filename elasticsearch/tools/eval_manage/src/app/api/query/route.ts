@@ -1,8 +1,11 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from "next/server";
+import { ELATICSEARCH_HOSTS } from "@/internal/const/common";
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  console.log("++++++++++", req, body);
   // ElasticsearchのエンドポイントURL
-  const elasticsearchUrl = "http://elasticsearch:9200/wiki/_search";
+  const elasticsearchUrl = ELATICSEARCH_HOSTS + "/wiki/_search";
 
   // 固定の検索クエリボディ (ユーザー指定のもの)
   const queryBody = {
@@ -27,12 +30,15 @@ export async function POST(req) {
   };
 
   try {
-    console.log("Sending query to Elasticsearch:", JSON.stringify(queryBody, null, 2));
+    console.log(
+      "Sending query to Elasticsearch:",
+      JSON.stringify(queryBody, null, 2),
+    );
 
     const esResponse = await fetch(elasticsearchUrl, {
-      method: 'POST', // GETでもbodyを送れるが、POSTが一般的
+      method: "POST", // GETでもbodyを送れるが、POSTが一般的
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(queryBody),
     });
@@ -42,28 +48,25 @@ export async function POST(req) {
       // エラー詳細を取得試行
       let errorBody = null;
       try {
-          errorBody = await esResponse.json();
-          console.error("Elasticsearch error response:", errorBody);
+        errorBody = await esResponse.json();
+        console.error("Elasticsearch error response:", errorBody);
       } catch (e) {
-          console.error("Could not parse Elasticsearch error response:", await esResponse.text());
+        console.error(
+          "Could not parse Elasticsearch error response:",
+          await esResponse.text(),
+        );
       }
-      throw new Error(`Elasticsearch query failed with status ${esResponse.status}`);
+      throw new Error(
+        `Elasticsearch query failed with status ${esResponse.status}`,
+      );
     }
 
     // レスポンスボディ (JSON) を取得
     const data = await esResponse.json();
 
-    return NextResponse.json(
-      { message: data },
-      { status: 200 }
-    )
-
+    return NextResponse.json({ message: data }, { status: 200 });
   } catch (error) {
     console.error("Error contacting Elasticsearch:", error);
-    return NextResponse.json(
-      { message: error.message },
-      { status: 500 }
-    )
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
-
